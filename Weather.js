@@ -43,6 +43,8 @@ Weather.showWeather = function(my_container) {
 			w.getWeatherByLatLng(data.coords).then(function(data) {
 				w.showResults();
 				w.showZipForm();
+			}).catch(function(data) {
+				alert(data.message);
 			});
 		}).catch(function(data) {
 			w.showZipForm();
@@ -64,12 +66,10 @@ Weather.prototype.showZipForm = function() {
 	zipBtn.innerHTML = "Get Weather";
 	zipBtn.addEventListener('click', function(e) {
 		that.getWeatherByZip(zipInput.value).then(function(data) {
-			if (data.message) {
-				alert(data.message);
-			} else {
-				that.setWeatherDetails(data);
-				that.showResults();
-			}
+			that.setWeatherDetails(data);
+			that.showResults();
+		}).catch(function(data) {
+			alert(data.message);
 		});
 	});
 
@@ -115,34 +115,8 @@ Weather.prototype.getLocation = function() {
 };
 
 Weather.prototype.getWeatherByLatLng = function(my_locationData) {
-	var url = this.apiUrl + '&lat=' + my_locationData.latitude + '&lon=' + my_locationData.longitude;
-	var that = this;
-
-	return new Promise(function(resolve, reject) {
-		var xhr = new XMLHttpRequest();
-
-		xhr.open("GET", url, true);
-
-		xhr.onload = function() {
-			if (this.status == 200 && this.status < 300) {
-				var responseJSON = JSON.parse(xhr.response);
-				that.setWeatherDetails(responseJSON);
-				resolve(responseJSON);
-			} else {
-				reject({
-					status: this.status,
-					statusText: xhr.statusText
-				});
-			}
-		};
-
-		xhr.send();
-	});
-};
-
-Weather.prototype.getWeatherByZip = function(my_zip) {
-	if (my_zip) {
-		var url = this.apiUrl + '&zip=' + my_zip;
+	if (my_locationData.latitude && my_locationData.longitude) {
+		var url = this.apiUrl + '&lat=' + my_locationData.latitude + '&lon=' + my_locationData.longitude;
 		var that = this;
 
 		return new Promise(function(resolve, reject) {
@@ -167,7 +141,48 @@ Weather.prototype.getWeatherByZip = function(my_zip) {
 		});
 	} else {
 		return new Promise(function(resolve, reject) {
-			resolve({'message':'no zip provided'});
+			reject({
+				message: 'Invalid location'
+			});
+		});
+	}
+};
+
+Weather.prototype.getWeatherByZip = function(my_zip) {
+	if (my_zip) {
+		var url = this.apiUrl + '&zip=' + my_zip;
+		var that = this;
+
+		return new Promise(function(resolve, reject) {
+			var xhr = new XMLHttpRequest();
+
+			xhr.open("GET", url, true);
+
+			xhr.onload = function() {
+				if (this.status == 200 && this.status < 300) {
+					var responseJSON = JSON.parse(xhr.response);
+
+					if (responseJSON.message) {
+						reject({
+							message: responseJSON.message
+						});
+					} else {
+						that.setWeatherDetails(responseJSON);
+						resolve(responseJSON);
+					}
+				} else {
+					reject({
+						status: this.status,
+						statusText: xhr.statusText
+					});
+				}
+			};
+
+			xhr.send();
+		});
+	} else {
+		return new Promise(function(resolve, reject) {
+			reject({'message':'no zip provided'});
 		});
 	}
 };
