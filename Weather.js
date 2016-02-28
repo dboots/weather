@@ -93,7 +93,6 @@ Weather.prototype.showResults = function() {
 	container.appendChild(resultsContainer);
 };
 
-//-- Public methods
 Weather.prototype.apiUrl = 'http://api.openweathermap.org/data/2.5/weather?appid=44db6a862fba0b067b1930da0d769e98';
 
 Weather.prototype.getLocation = function() {
@@ -142,27 +141,33 @@ Weather.prototype.getWeatherByLatLng = function(my_locationData) {
 };
 
 Weather.prototype.getWeatherByZip = function(my_zip) {
-	var url = this.apiUrl + '&zip=' + my_zip + ',us';
-	var that = this;
+	if (my_zip) {
+		var url = this.apiUrl + '&zip=' + my_zip;
+		var that = this;
 
-	return new Promise(function(resolve, reject) {
-		var xhr = new XMLHttpRequest();
+		return new Promise(function(resolve, reject) {
+			var xhr = new XMLHttpRequest();
 
-		xhr.open("GET", url, true);
+			xhr.open("GET", url, true);
 
-		xhr.onload = function() {
-			if (this.status == 200 && this.status < 300) {
-				var responseJSON = JSON.parse(xhr.response);
-				that.setWeatherDetails(responseJSON);
-				resolve(responseJSON);
-			} else {
-				reject({
-					status: this.status,
-					statusText: xhr.statusText
-				});
-			}
-		};
+			xhr.onload = function() {
+				if (this.status == 200 && this.status < 300) {
+					var responseJSON = JSON.parse(xhr.response);
+					that.setWeatherDetails(responseJSON);
+					resolve(responseJSON);
+				} else {
+					reject({
+						status: this.status,
+						statusText: xhr.statusText
+					});
+				}
+			};
 
-		xhr.send();
-	});
+			xhr.send();
+		});
+	} else {
+		return new Promise(function(resolve, reject) {
+			resolve({'message':'no zip provided'});
+		});
+	}
 };
