@@ -1,0 +1,27 @@
+<html>
+	<head>
+		<title></title>
+		<script type="text/javascript" src="Weather.js"></script>
+		<script type="text/javascript" src="Location.js"></script>
+		<script type="text/javascript">
+			var w = new Weather();
+			var l = new Location();
+
+			l.getLocation().then(function(data) {
+				var weather = w.getWeather(data.coords);
+				var zip = document.getElementById('txtZip');
+				zip.innerHtml(weather)
+
+				console.log(weather);
+			});
+		</script>
+	</head>
+	<body>
+
+		<div id="location">
+			<label for="zip">Zip:</label>
+			<input type="text" name="zip" id="txtZip" />
+		</div>
+
+	</body>
+</html>
