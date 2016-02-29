@@ -38,7 +38,7 @@ function Weather(my_container) {
 	this.getWeatherDetailsOutput = function() {
 		var output = '';
 		output = 'The weather in ' + _weatherDetails.name + ' is currently ' + _weatherDetails.weather[0].description + '.';
-		output += 'The temperature is currently ' + this.convertKelvinToF(_weatherDetails.main.temp);
+		output += ' The temperature is currently ' + this.convertKelvinToF(_weatherDetails.main.temp);
 		return output;
 	};
 
@@ -46,13 +46,12 @@ function Weather(my_container) {
 	* Convert Kelvin temp to Fahrenheit
 	*
 	* @param {string|int|float|double} my_temp Temperature in Kelvins
-	* @return int tmpInF Temperature converted from Kelving to Fahrenheit
+	* @return {string} tmpInF Temperature converted from Kelvin to Fahrenheit with appended '&degF'
 	*/
 	this.convertKelvinToF = function(my_kelvinTemp) {
-
-		//-- 
-		var tmpInF = parseInt(((my_kelvinTemp - 273.15) * 1.8) + 32, 0);
-		tmpInF += '&deg; F';
+		//-- Formula from http://www.rapidtables.com/convert/temperature/how-kelvin-to-fahrenheit.htm
+		var tmpInF = parseInt((my_kelvinTemp * 1.8 - 459.67), 0);
+		tmpInF += '&deg;F';
 		return tmpInF;
 	};
 
